@@ -1,0 +1,63 @@
+
+
+    <form id="textform">
+      <div><input name="content" type="text" id="formtext" size="100"></input>
+      </div>
+    </form>
+
+    <script>
+    function Request(args) {
+        
+      // Find if the last arg is a callback function; save it
+      var callback = null;
+      var len = args.length;
+      if (len > 0 && typeof args[len-1] == 'function') {
+        callback = args[len-1];
+        args.length--;
+      }
+      var async = (callback != null);
+    
+      // Encode the arguments in to a URI
+      var query = 'key=' + encodeURIComponent('apple');
+
+      // See http://en.wikipedia.org/wiki/XMLHttpRequest to make this cross-browser compatible
+      var req = new XMLHttpRequest();
+    
+      // Create a 'GET' request w/ an optional callback handler
+      req.open('GET', '/fetch?' + query, async);
+    
+      if (async) {
+        req.onreadystatechange = function() {
+          if(req.readyState == 4 && req.status == 200) {
+            var response = null;
+            try {
+             response = JSON.parse(req.responseText);
+            } catch (e) {
+             response = req.responseText;
+            }
+            callback(response);
+          }
+        }
+      }
+    
+      // Make the actual request
+      req.send(null);
+    }
+
+    function InstallFunction(obj, name) {
+      obj[name] = function() { Request(arguments); }
+    }
+
+    var server = {};
+    InstallFunction(server, 'Fetch');
+
+    function doFetch() {
+        server.Fetch($("formtext").value, onFetchSuccess);
+    }
+
+    function onFetchSuccess(response) {
+        $("werd").innerHTML += response;
+    }
+
+    $("formtext").change(doFetch());
+    </script>

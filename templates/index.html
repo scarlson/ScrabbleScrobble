@@ -1,0 +1,92 @@
+
+<html>
+  <head>
+    <script src="./js/jquery.js"></script>
+    <script src="./js/json2.js"></script>
+    <link rel="stylesheet" href="./css/main.css" type="text/css"/>  
+
+
+  </head>
+  <body>
+    <h1>Scrabble Scrobble</h1>
+    <form id="textform" action="doFetch()">
+        Rack:<input type="text" id="rack" size="55"/>
+        Board:<input type="text" id="board" size="55"/>
+    </form>
+    <div id="count">
+    </div>
+    <div id="result">
+    </div>
+
+    <script>
+
+    var rack = document.getElementById('rack');
+    var board = document.getElementById('board');
+    var result = document.getElementById('result');
+    var count = document.getElementById('count');
+    var req;
+    var runningReq = false;
+
+    function Request(args, callback) {
+        
+      var async = (callback !== null);
+    
+      // Encode the arguments in to a URI
+      var query = 'rack=' + encodeURIComponent(args[0]) + '&board=' + encodeURIComponent(args[1]);
+
+      if(runningReq){
+        req.abort();
+      }
+      runningReq = true;
+
+      // See http://en.wikipedia.org/wiki/XMLHttpRequest to make this cross-browser compatible
+      req = new XMLHttpRequest();
+    
+      // Create a 'GET' request w/ an optional callback handler
+      req.open('GET', '/fetch?' + query, async);
+        
+
+      if (async) {
+        req.onreadystatechange = function() {
+          if(req.readyState === 4 && req.status === 200) {
+            var response = null;
+            try {
+             response = JSON.parse(req.responseText);
+            } catch (e) {
+             response = req.responseText;
+            }
+            callback(response);
+          }
+        };
+      }
+    
+      // Make the actual request
+      //setTimeout("req.send(null)", 200);
+      req.send(null);
+    }
+
+    function onFetchSuccess(response) {
+        runningReq = false;
+        var res;
+        count.innerHTML = "Words found: " + response.count;
+        res = '<table><thead><tr><th>Word</th><th>Score</th></tr></thead><tbody>';
+        jQuery.each( response.words, function(){ res += '<tr><td>' + this[0] + '</td>' + '<td>' + this[1] + '</td>'; }); // no definitions
+        res += '</tbody></table>';
+        result.innerHTML = res;
+    }
+
+    function doFetch() {
+        if(jQuery.trim(rack.value) !== "" && (jQuery.trim(rack.value).length + jQuery.trim(board.value).length) > 2){
+            var args  = new Array();
+            args[0] = jQuery.trim(rack.value)
+            args[1] = jQuery.trim(board.value)
+            Request(args, onFetchSuccess);
+    }}
+    
+    $("input").keyup(function () {
+        doFetch();
+    });
+    </script>
+
+  </body>
+</html>
