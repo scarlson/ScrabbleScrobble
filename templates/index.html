@@ -71,7 +71,7 @@
         count.innerHTML = "Words found: " + response.count;
         res = '<table><thead><tr><th>Word</th><th>Score</th></tr></thead><tbody>';
         jQuery.each( response.words, function(){ res += '<tr><td>' + this[0] + '</td>' + '<td>' + this[1] + '</td>'; }); // no definitions
-        res += '</tbody></table>';
+        res += '</tbody><tfoot><tr><td>Time Elapsed: ' + response.elapsed + '</td></tr></tfoot></table>';
         result.innerHTML = res;
     }
 
