@@ -153,7 +153,11 @@ def findWords(rack=None,board=None):
             if tile in w:
                 w.remove(tile)
         if len(w) <= wild + adj:
-            words.append(word)
+            if wild == 0 and len(w) > 0:
+                if w[0] in board:
+                    words.append(word)
+            else:
+                words.append(word)
 
     words = list(set(words))    
     return words
